@@ -65,7 +65,7 @@ export function reflow() {
             // if the current line length is already longer than the max length, push it to the new lines array
             // OR if our word does NOT start with a left square bracket (i.e. is not a .md hyperlink) AND
             // if adding it and a space would make the line longer than the max length, also push it to the new lines array
-            if (curLine.length >= curMaxLineLength || (word[0] != "[" && curLine.length + 1 + word.length >= curMaxLineLength)) {
+            if (curLine.length > curMaxLineLength || (word[0] != "[" && curLine.length + 1 + word.length > curMaxLineLength)) {
                 newLines.push(curLine.replace(/\s*$/, ''));  //remove trailing whitespace
                 curLine = sei.indents.otherLines;
             } 
