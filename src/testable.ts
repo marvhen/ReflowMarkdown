@@ -112,6 +112,10 @@ export function markdownBlockQuoteLevelFromRegExMatch(matchArray: RegExpMatchArr
         return 0;
 }
 
+export function isEmptyBlockQuote(text: string): boolean {
+    return text.match(/^(\s*>)+\s*$/) != null;
+}
+
 export function isMarkdownHeadingHash(text: string): boolean {
     return text.startsWith("#");
 }
@@ -304,6 +308,11 @@ export function getStartLine(lineAtFunc: (line: number) => TextLine, midLine: Te
         return midLine;        
     }
 
+    // If the current line is an empty blockquote line, it is a start line
+    if (isEmptyBlockQuote(midLine.text)) {
+        return midLine;
+    }
+
     // If the current line is a hash heading, the current line is a start point
     if (isMarkdownHeadingHash(midLine.text)) {
         return midLine;
@@ -317,6 +326,11 @@ export function getStartLine(lineAtFunc: (line: number) => TextLine, midLine: Te
     
     // If the prev line is empty, this line is the start
     if (prevLine.isEmptyOrWhitespace) {
+        return midLine;
+    }
+
+    // If the prev line is an empty blockquote line, this line is the start
+    if (isEmptyBlockQuote(prevLine.text)) {
         return midLine;
     }
 
@@ -358,6 +372,11 @@ export function getEndLine(lineAtFunc: (line: number) => TextLine, midLine: Text
         return midLine;
     }
 
+    // If the current line is an empty blockquote line, it is an end point
+    if (isEmptyBlockQuote(midLine.text)) {
+        return midLine;
+    }
+
     // If the current line is a hash it is a end point
     if (isMarkdownHeadingHash(midLine.text)) {
         return midLine;
@@ -378,6 +397,11 @@ export function getEndLine(lineAtFunc: (line: number) => TextLine, midLine: Text
 
     // if the next line is empty, this line is the end
     if (nextLine.isEmptyOrWhitespace) {
+        return midLine;
+    }
+
+    // If the next line is an empty blockquote line, this line is the end
+    if (isEmptyBlockQuote(nextLine.text)) {
         return midLine;
     }
 
