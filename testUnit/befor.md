@@ -30,6 +30,19 @@ This is a Header Made With Dashes And It is Exactly 70 Characters Long
    >>blockquotes are handled too by the reflowMarkdown extension, but they are considered to be their own
    >   >  paragraph and therefore require their own reflow action. 
 
+ > This is a big blockquote with multiple paragraphs inside of it. Some lines may be longer than
+ > the preferredLineLength, while others aren't.
+ >
+ > The multiple paragraphs are not separated by an empty line, but by an empty blockquote line, which is a
+ > line with the blockquote start character (`>`) followed only by zero or more spaces.
+ >
+ > > This is a nested blockquote with no empty line between it and the previous blockquote.  It
+ >> should be reflowed as a separate paragraph as well. Its formatting should also be fixed so
+ >>that the blockquote characters are alinged properly.
+ > >
+ > > The level 2 blockquote also has two paragraphs in it, which are separated by an empty level
+ > > 2 blockquote line. It should be reflowed as two separate paragraphs as well.
+
 `{"settings": {"doubleSpaceBetweenSentences":false }}`
 
 This is a paragraph with several sentences.  It starts out with two or more spaces between each sentence.    When it 
