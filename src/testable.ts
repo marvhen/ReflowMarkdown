@@ -10,16 +10,16 @@ export interface Indents {
 }
 
 export class OtherInfo {
-  isHeadingDash: boolean;
-  indents: Indents;
-  constructor() {
-      this.isHeadingDash = false;
-      this.indents = {
-          blockQuoteLevel: 0,
-          firstLine: "",
-          otherLines: ""
-      };
-  }
+    isHeadingDash: boolean;
+    indents: Indents;
+    constructor() {
+        this.isHeadingDash = false;
+        this.indents = {
+            blockQuoteLevel: 0,
+            firstLine: "",
+            otherLines: ""
+        };
+    }
 }
 
 export interface StartEndInfo {
@@ -32,18 +32,20 @@ enum wrapLongLinksOptions {
     wrap = "wrap",
     doNotWrap = "doNotWrap"
 }
-export interface Settings  {
-    preferredLineLength: number, 
+export interface Settings {
+    preferredLineLength: number,
     doubleSpaceBetweenSentences: boolean,
     resizeHeaderDashLines: boolean,
-    wrapLongLinks: wrapLongLinksOptions
+    wrapLongLinks: wrapLongLinksOptions,
+    formatOnSave: boolean
 }
 
-const DEFAULTSETTINGS : Settings = {
+const DEFAULTSETTINGS: Settings = {
     preferredLineLength: 80,
     doubleSpaceBetweenSentences: false,
     resizeHeaderDashLines: true,
-    wrapLongLinks: wrapLongLinksOptions.wrap
+    wrapLongLinks: wrapLongLinksOptions.wrap,
+    formatOnSave: false
 };
 
 export function wordIsLink(word: string) {
@@ -63,8 +65,8 @@ export function lineIsSentenceEnd(line: string): RegExpMatchArray | null {
 }
 
 function lineConsistsOnlyOfTheIndents(line: string, lineIndex: number, sei: StartEndInfo): boolean {
-    return ((lineIndex === 0 && line === sei.otherInfo.indents.firstLine) || 
-            (lineIndex !== 0 && line === sei.otherInfo.indents.otherLines));
+    return ((lineIndex === 0 && line === sei.otherInfo.indents.firstLine) ||
+        (lineIndex !== 0 && line === sei.otherInfo.indents.otherLines));
 }
 
 // replaces spaces within link text (in square brackets) with another character
@@ -74,7 +76,7 @@ export function replaceSpacesInLinkTextWithBs(txt: string): string {
     return txt.replace(HYPERLINK_REGEX, (substr, ...args) => {
         return substr.replace(/\s/g, "\x08"); // x08 is hex ascii code for the 'backspace' character
     });
-   
+
 }
 
 // replaces spaces within inline code (surrounded by either one or two
@@ -82,7 +84,7 @@ export function replaceSpacesInLinkTextWithBs(txt: string): string {
 export function replaceSpacesInInlineCodeWithBs(txt: string): string {
     return txt.replace(/`(`([^`]|`[^`])*`|.*?)`/g, (substr, ...args) => {
         return substr.replace(/\s/g, "\x08"); // x08 is hex ascii code for the 'backspace' character
-    });  
+    });
 }
 
 export function removeBlockQuoteFormatting(txt: string, blockQuoteLevel: number): string {
@@ -97,12 +99,12 @@ export function removeBlockQuoteFormatting(txt: string, blockQuoteLevel: number)
 
 // true if text is zero or more spaces + [ (1 or more digits + 1 decimal) OR (1 dash or asterisk) ] + 1 or more spaces   
 export function getListStart(text: string): RegExpMatchArray | null {
-    return text.match(/^\s*((\d+\.)|([-\*]))(\s+)/);        
+    return text.match(/^\s*((\d+\.)|([-\*]))(\s+)/);
 }
 
 // line beginning + [zero or more spaces + 1 greater than sign](one-or-more)    
 export function getBlockQuote(text: string): RegExpMatchArray | null {
-    return text.match(/^(\s*>)+/);       
+    return text.match(/^(\s*>)+/);
 }
 
 export function markdownBlockQuoteLevelFromRegExMatch(matchArray: RegExpMatchArray | null): number {
@@ -122,7 +124,7 @@ export function isMarkdownHeadingDash(text: string): boolean {
 }
 
 export function markdownBlockQuoteLevelFromString(text: string): number {
-    return markdownBlockQuoteLevelFromRegExMatch(getBlockQuote(text));    
+    return markdownBlockQuoteLevelFromRegExMatch(getBlockQuote(text));
 }
 
 export function getFencedCodeBlockDelimiter(text: string): RegExpMatchArray | null {
@@ -130,21 +132,21 @@ export function getFencedCodeBlockDelimiter(text: string): RegExpMatchArray | nu
 }
 
 export function getLineIndent(firstNonWhitespaceCharacterIndex: number, text: string): Indents {
-    
+
     let startLnSpaces = " ".repeat(firstNonWhitespaceCharacterIndex);
 
     let regExMatches = getListStart(text);
-    if (regExMatches) {        
+    if (regExMatches) {
         return {
             firstLine: startLnSpaces,
             otherLines: " ".repeat(regExMatches[0].length),
             blockQuoteLevel: 0
         };
     }
-    
+
     regExMatches = getBlockQuote(text);
     if (regExMatches) {
-        var level =  markdownBlockQuoteLevelFromRegExMatch(regExMatches);
+        var level = markdownBlockQuoteLevelFromRegExMatch(regExMatches);
         var indent = startLnSpaces + "> ".repeat(level);
         return {
             firstLine: indent,
@@ -152,7 +154,7 @@ export function getLineIndent(firstNonWhitespaceCharacterIndex: number, text: st
             blockQuoteLevel: level
         };
     }
-    
+
     return {
         firstLine: startLnSpaces,
         otherLines: startLnSpaces,
@@ -161,16 +163,16 @@ export function getLineIndent(firstNonWhitespaceCharacterIndex: number, text: st
 }
 
 // helper for integration testing....aygni?
-export function goToLine(activeTextEditor: TextEditor, 
-                         selectionCtor1: new (anchor: Position, active: Position) => Selection,
-                         selectionCtor2: new (anchorLine: number, anchorCharacter: number, activeLine: number, activeCharacter: number) => Selection,
-                         oneBasedLine: number, selectWholeLine: boolean) {
+export function goToLine(activeTextEditor: TextEditor,
+    selectionCtor1: new (anchor: Position, active: Position) => Selection,
+    selectionCtor2: new (anchorLine: number, anchorCharacter: number, activeLine: number, activeCharacter: number) => Selection,
+    oneBasedLine: number, selectWholeLine: boolean) {
     let zeroBasedLine = oneBasedLine - 1;
     let range = activeTextEditor.document.lineAt(zeroBasedLine).range;
 
-    activeTextEditor.selection = selectWholeLine 
-                     ? new selectionCtor1(range.start, range.end) 
-                     : new selectionCtor2(zeroBasedLine, 0, zeroBasedLine, 0);
+    activeTextEditor.selection = selectWholeLine
+        ? new selectionCtor1(range.start, range.end)
+        : new selectionCtor2(zeroBasedLine, 0, zeroBasedLine, 0);
 
     activeTextEditor.revealRange(range);
 }
@@ -192,12 +194,12 @@ export function getReflowedText(sei: StartEndInfo, text: string, settings: Setti
         spacesAfterListMarker = listStart[4];
     }
 
-    let spaceBetweenSentences =  settings.doubleSpaceBetweenSentences ? "  " : " ";
+    let spaceBetweenSentences = settings.doubleSpaceBetweenSentences ? "  " : " ";
     let words = text.split(/\s/);
     let newLines: string[] = [];
     let lineBeingBuilt = sei.otherInfo.indents.firstLine;
     let spaces = "";
-    let lineToPush: string|null = null;
+    let lineToPush: string | null = null;
     let longestLineLength = 0;
 
     words.forEach((word, i) => {
@@ -207,7 +209,7 @@ export function getReflowedText(sei: StartEndInfo, text: string, settings: Setti
 
             // if the previous iteration determined we are ready to add the line then do that first
             if (lineToPush) {
-                longestLineLength = lineToPush.length > longestLineLength ?  lineToPush.length : longestLineLength;
+                longestLineLength = lineToPush.length > longestLineLength ? lineToPush.length : longestLineLength;
                 newLines.push(lineToPush);
                 lineToPush = null;
             }
@@ -215,7 +217,7 @@ export function getReflowedText(sei: StartEndInfo, text: string, settings: Setti
             // logic to add this word to the line being built and determine if the line is ready to push
             if (sei.otherInfo.isHeadingDash && isMarkdownHeadingDash(word)) {
                 lineToPush = lineBeingBuilt;
-                longestLineLength = lineToPush.length > longestLineLength ?  lineToPush.length : longestLineLength;
+                longestLineLength = lineToPush.length > longestLineLength ? lineToPush.length : longestLineLength;
                 lineBeingBuilt = word.charAt(0).repeat(longestLineLength);
             } else if (entireWordByItselfTooLong(word, settings.preferredLineLength)) {
                 if (spaces === "") {
@@ -225,19 +227,19 @@ export function getReflowedText(sei: StartEndInfo, text: string, settings: Setti
                     lineBeingBuilt = sei.otherInfo.indents.otherLines.concat(word);
                 }
             } else if (lineBeingBuiltAlreadyTooLong(lineBeingBuilt, settings.preferredLineLength)) {
-                lineToPush = lineBeingBuilt; 
+                lineToPush = lineBeingBuilt;
                 lineBeingBuilt = sei.otherInfo.indents.otherLines.concat(word);
             } else if (wordIsLink(word)) {
                 if (lineBeingBuiltWithSpacesAndWord.length < settings.preferredLineLength) {
                     lineBeingBuilt = lineBeingBuiltWithSpacesAndWord;
                 } else if (settings.wrapLongLinks === wrapLongLinksOptions.doNotWrap) {
                     lineBeingBuilt = lineBeingBuiltWithSpacesAndWord;
-                } else  { //settings.wrapLongLinks == wrapHyperlinksOptions.wrap
-                    lineToPush = lineBeingBuilt; 
+                } else { //settings.wrapLongLinks == wrapHyperlinksOptions.wrap
+                    lineToPush = lineBeingBuilt;
                     lineBeingBuilt = sei.otherInfo.indents.otherLines.concat(word);
                 }
             } else if (lineTooLong(lineBeingBuiltWithSpacesAndWord, settings.preferredLineLength)) {
-                lineToPush = lineBeingBuilt; 
+                lineToPush = lineBeingBuilt;
                 lineBeingBuilt = sei.otherInfo.indents.otherLines.concat(word);
             } else {
                 lineBeingBuilt = lineBeingBuiltWithSpacesAndWord;
@@ -254,7 +256,7 @@ export function getReflowedText(sei: StartEndInfo, text: string, settings: Setti
                 spaces = " ";
             }
         }
-            
+
     });
 
     // if the original text ended with 2 spaces, restore it
@@ -264,12 +266,12 @@ export function getReflowedText(sei: StartEndInfo, text: string, settings: Setti
         } else {
             lineBeingBuilt += "  ";
         }
-    }  
+    }
 
     if (lineToPush) {
         newLines.push(lineToPush);
         lineToPush = null;
-    } 
+    }
 
     // the final line may not have been added yet.
     if (lineBeingBuilt.length > 0) {
@@ -296,13 +298,13 @@ export function getReflowedText(sei: StartEndInfo, text: string, settings: Setti
 export function getStartLine(lineAtFunc: (line: number) => TextLine, midLine: TextLine): TextLine {
 
     // If we are at line 0, the middleLine is the start line
-    if (midLine.lineNumber === 0) { 
+    if (midLine.lineNumber === 0) {
         return midLine;
     }
-      
+
     // If the current line is empty, it is a start line
-    if (midLine.isEmptyOrWhitespace ) {
-        return midLine;        
+    if (midLine.isEmptyOrWhitespace) {
+        return midLine;
     }
 
     // If the current line is a hash heading, the current line is a start point
@@ -315,7 +317,7 @@ export function getStartLine(lineAtFunc: (line: number) => TextLine, midLine: Te
     }
 
     let prevLine = lineAtFunc(midLine.lineNumber - 1);
-    
+
     // If the prev line is empty, this line is the start
     if (prevLine.isEmptyOrWhitespace) {
         return midLine;
@@ -343,7 +345,7 @@ export function getStartLine(lineAtFunc: (line: number) => TextLine, midLine: Te
     if (bqLevelMid !== bqLevelPrv) {
         return midLine;
     }
-    
+
     return getStartLine(lineAtFunc, prevLine);
 }
 
@@ -369,12 +371,12 @@ export function getEndLine(lineAtFunc: (line: number) => TextLine, midLine: Text
         o.isHeadingDash = true;
         return midLine;
     }
-    
+
     // If the current line ends with two, spaces, it is an end point    
     if (midLine.text.endsWith("  ")) {
         return midLine;
     }
-    
+
     let nextLine = lineAtFunc(midLine.lineNumber + 1);
 
     // if the next line is empty, this line is the end
@@ -384,7 +386,7 @@ export function getEndLine(lineAtFunc: (line: number) => TextLine, midLine: Text
 
     // If the next line is a hash heading, IT is the end
     if (isMarkdownHeadingDash(nextLine.text)) {
-        o.isHeadingDash =  true;
+        o.isHeadingDash = true;
         return nextLine;
     }
 
@@ -397,13 +399,13 @@ export function getEndLine(lineAtFunc: (line: number) => TextLine, midLine: Text
     if (getFencedCodeBlockDelimiter(nextLine.text)) {
         return midLine;
     }
-    
+
     // in [gitlab flavored] markdown, once blockQuotes nesting begins into a deeper level, it doesn't 
     // back out into a shallower level.  Therefore, the end is only when the nextLine level is greater than this line level.
     var bqLevelMid = markdownBlockQuoteLevelFromString(midLine.text);
     var bqLevelNxt = markdownBlockQuoteLevelFromString(nextLine.text);
     if (bqLevelMid > 0 && (bqLevelNxt === 0 || bqLevelNxt > bqLevelMid)) {
-            return midLine;
+        return midLine;
     }
 
     return getEndLine(lineAtFunc, lineAtFunc(midLine.lineNumber + 1), maxLineNum, o);
@@ -416,7 +418,8 @@ export function getSettings(wsConfig?: WorkspaceConfiguration): Settings {
             preferredLineLength: wsConfig.get("preferredLineLength", DEFAULTSETTINGS.preferredLineLength),
             doubleSpaceBetweenSentences: wsConfig.get("doubleSpaceBetweenSentences", DEFAULTSETTINGS.doubleSpaceBetweenSentences),
             resizeHeaderDashLines: wsConfig.get("resizeHeaderDashLines", DEFAULTSETTINGS.resizeHeaderDashLines),
-            wrapLongLinks: wsConfig.get("wrapLongLinks", DEFAULTSETTINGS.wrapLongLinks)
+            wrapLongLinks: wsConfig.get("wrapLongLinks", DEFAULTSETTINGS.wrapLongLinks),
+            formatOnSave: wsConfig.get("formatOnSave", DEFAULTSETTINGS.formatOnSave)
         };
     } else {
         return DEFAULTSETTINGS;
