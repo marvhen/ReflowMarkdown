@@ -1,0 +1,9 @@
+// ignore the problems in this folder as they are there for testing.
+// tbd: does markdownlint have a way to just ignore a whole folder?
+{
+  "MD009": false,
+  "MD013": false,
+  "MD027": false,
+  "MD041": false,
+  "MD047": false
+}

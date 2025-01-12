@@ -18,7 +18,7 @@ export class OtherInfo {
           blockQuoteLevel: 0,
           firstLine: "",
           otherLines: ""
-      }
+      };
   }
 }
 
@@ -63,8 +63,8 @@ export function lineIsSentenceEnd(line: string): RegExpMatchArray | null {
 }
 
 function lineConsistsOnlyOfTheIndents(line: string, lineIndex: number, sei: StartEndInfo): boolean {
-    return ((lineIndex == 0 && line == sei.otherInfo.indents.firstLine) || 
-            (lineIndex != 0 && line == sei.otherInfo.indents.otherLines));
+    return ((lineIndex === 0 && line === sei.otherInfo.indents.firstLine) || 
+            (lineIndex !== 0 && line === sei.otherInfo.indents.otherLines));
 }
 
 // replaces spaces within link text (in square brackets) with another character
@@ -106,10 +106,11 @@ export function getBlockQuote(text: string): RegExpMatchArray | null {
 }
 
 export function markdownBlockQuoteLevelFromRegExMatch(matchArray: RegExpMatchArray | null): number {
-    if (matchArray && matchArray.length)
-        return matchArray[0].replace(/\s/g, "").length
-    else
+    if (matchArray && matchArray.length) {
+        return matchArray[0].replace(/\s/g, "").length;
+    } else {
         return 0;
+    }
 }
 
 export function isMarkdownHeadingHash(text: string): boolean {
@@ -138,10 +139,10 @@ export function getLineIndent(firstNonWhitespaceCharacterIndex: number, text: st
             firstLine: startLnSpaces,
             otherLines: " ".repeat(regExMatches[0].length),
             blockQuoteLevel: 0
-        }
+        };
     }
     
-    regExMatches = getBlockQuote(text)
+    regExMatches = getBlockQuote(text);
     if (regExMatches) {
         var level =  markdownBlockQuoteLevelFromRegExMatch(regExMatches);
         var indent = startLnSpaces + "> ".repeat(level);
@@ -149,14 +150,14 @@ export function getLineIndent(firstNonWhitespaceCharacterIndex: number, text: st
             firstLine: indent,
             otherLines: indent,
             blockQuoteLevel: level
-        }        
+        };
     }
     
     return {
         firstLine: startLnSpaces,
         otherLines: startLnSpaces,
         blockQuoteLevel: 0
-    }
+    };
 }
 
 // helper for integration testing....aygni?
@@ -164,7 +165,7 @@ export function goToLine(activeTextEditor: TextEditor,
                          selectionCtor1: new (anchor: Position, active: Position) => Selection,
                          selectionCtor2: new (anchorLine: number, anchorCharacter: number, activeLine: number, activeCharacter: number) => Selection,
                          oneBasedLine: number, selectWholeLine: boolean) {
-    let zeroBasedLine = oneBasedLine - 1
+    let zeroBasedLine = oneBasedLine - 1;
     let range = activeTextEditor.document.lineAt(zeroBasedLine).range;
 
     activeTextEditor.selection = selectWholeLine 
@@ -217,7 +218,7 @@ export function getReflowedText(sei: StartEndInfo, text: string, settings: Setti
                 longestLineLength = lineToPush.length > longestLineLength ?  lineToPush.length : longestLineLength;
                 lineBeingBuilt = word.charAt(0).repeat(longestLineLength);
             } else if (entireWordByItselfTooLong(word, settings.preferredLineLength)) {
-                if (spaces == "") {
+                if (spaces === "") {
                     lineToPush = lineBeingBuilt.concat(word);
                 } else {
                     lineToPush = lineBeingBuilt;
@@ -228,9 +229,9 @@ export function getReflowedText(sei: StartEndInfo, text: string, settings: Setti
                 lineBeingBuilt = sei.otherInfo.indents.otherLines.concat(word);
             } else if (wordIsLink(word)) {
                 if (lineBeingBuiltWithSpacesAndWord.length < settings.preferredLineLength) {
-                    lineBeingBuilt = lineBeingBuiltWithSpacesAndWord
-                } else if (settings.wrapLongLinks == wrapLongLinksOptions.doNotWrap) {
-                    lineBeingBuilt = lineBeingBuiltWithSpacesAndWord
+                    lineBeingBuilt = lineBeingBuiltWithSpacesAndWord;
+                } else if (settings.wrapLongLinks === wrapLongLinksOptions.doNotWrap) {
+                    lineBeingBuilt = lineBeingBuiltWithSpacesAndWord;
                 } else  { //settings.wrapLongLinks == wrapHyperlinksOptions.wrap
                     lineToPush = lineBeingBuilt; 
                     lineBeingBuilt = sei.otherInfo.indents.otherLines.concat(word);
@@ -243,7 +244,7 @@ export function getReflowedText(sei: StartEndInfo, text: string, settings: Setti
             }
 
             // determine how many spaces will separate this word and the next
-            if (listStart && i == 0) {
+            if (listStart && i === 0) {
                 spaces = spacesAfterListMarker;
             } else if (lineIsSentenceEnd(lineBeingBuilt)) {
                 spaces = spaceBetweenSentences;
@@ -295,7 +296,7 @@ export function getReflowedText(sei: StartEndInfo, text: string, settings: Setti
 export function getStartLine(lineAtFunc: (line: number) => TextLine, midLine: TextLine): TextLine {
 
     // If we are at line 0, the middleLine is the start line
-    if (midLine.lineNumber == 0) { 
+    if (midLine.lineNumber === 0) { 
         return midLine;
     }
       
@@ -339,7 +340,7 @@ export function getStartLine(lineAtFunc: (line: number) => TextLine, midLine: Te
     // back out into a shallower level.  Therefore, the start is only when the prevLine is lower than this line.
     var bqLevelMid = markdownBlockQuoteLevelFromString(midLine.text);
     var bqLevelPrv = markdownBlockQuoteLevelFromString(prevLine.text);
-    if (bqLevelMid != bqLevelPrv) {
+    if (bqLevelMid !== bqLevelPrv) {
         return midLine;
     }
     
@@ -349,7 +350,7 @@ export function getStartLine(lineAtFunc: (line: number) => TextLine, midLine: Te
 export function getEndLine(lineAtFunc: (line: number) => TextLine, midLine: TextLine, maxLineNum: number, o: OtherInfo): TextLine {
 
     // if midLine is the last line it is the end 
-    if (midLine.lineNumber == maxLineNum) {
+    if (midLine.lineNumber === maxLineNum) {
         return midLine;
     }
 
@@ -401,7 +402,7 @@ export function getEndLine(lineAtFunc: (line: number) => TextLine, midLine: Text
     // back out into a shallower level.  Therefore, the end is only when the nextLine level is greater than this line level.
     var bqLevelMid = markdownBlockQuoteLevelFromString(midLine.text);
     var bqLevelNxt = markdownBlockQuoteLevelFromString(nextLine.text);
-    if (bqLevelMid > 0 && (bqLevelNxt == 0 || bqLevelNxt > bqLevelMid)) {
+    if (bqLevelMid > 0 && (bqLevelNxt === 0 || bqLevelNxt > bqLevelMid)) {
             return midLine;
     }
 
@@ -416,7 +417,7 @@ export function getSettings(wsConfig?: WorkspaceConfiguration): Settings {
             doubleSpaceBetweenSentences: wsConfig.get("doubleSpaceBetweenSentences", DEFAULTSETTINGS.doubleSpaceBetweenSentences),
             resizeHeaderDashLines: wsConfig.get("resizeHeaderDashLines", DEFAULTSETTINGS.resizeHeaderDashLines),
             wrapLongLinks: wsConfig.get("wrapLongLinks", DEFAULTSETTINGS.wrapLongLinks)
-        }
+        };
     } else {
         return DEFAULTSETTINGS;
     }

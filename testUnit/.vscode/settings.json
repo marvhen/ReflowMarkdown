@@ -1,5 +1,0 @@
-{
-    "markdownlint.ignore": ["*.*"],
-    "reflowMarkdown.preferredLineLength": 70,
-    "reflowMarkdown.doubleSpaceBetweenSentences": false
-}
