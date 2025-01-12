@@ -2,7 +2,7 @@
   "name": "reflow-markdown",
   "displayName": "Reflow Markdown",
   "description": "Format lines in markdown headers, paragraphs, blockquotes, lists, etc. to a preferred line-length.",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "publisher": "marvhen",
   "icon": "img/logo.png",
   "license": "MIT",

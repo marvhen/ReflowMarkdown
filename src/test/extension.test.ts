@@ -170,7 +170,11 @@ suite('Extension Test Suite', () => {
 
         assert.equal(linesAfter[nextAfterLineToTest] !== undefined, true, "befor.md has more lines than expected...are there trailing CRLFs?");
 
-        assert.equal(reflowedLines[i], linesAfter[nextAfterLineToTest], "LINES DON'T MATCH!");
+        const actual = reflowedLines[i];
+        const expect = linesAfter[nextAfterLineToTest];
+        const messge = `LINES DON'T MATCH!\n${actual}\n${expect}`;
+        assert.equal(actual, expect, messge);
+
         nextAfterLineToTest++;
       }
 

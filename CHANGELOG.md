@@ -4,21 +4,34 @@ Change Log
 (*[semantic versioning](https://semver.org/) [ambitioned](http://www.dictionary.com/browse/ambitioned)
 for releases but not guaranteed...)*
 
+3.1.0
+-----
+
+- Added support for multi-paragraph blockquotes, fixing
+  [issue #8](https://github.com/marvhen/ReflowMarkdown/issues/8).
+  Thank you [Alonso Herreros](https://github.com/alonso-herreros) for
+  the code for this!
+
 3.0.0
 -----
 
-- This port the old source code to a new fresh extension using the latest dependencies and dev tools, which will later allow for some updates requested by users.
-- No functional changes (hopefully), but now depends on VS Code 1.96.0.
-- Refreshed to now depend on newer versions of dependencies, using latest dev dependencies.
-- If problems are found with this version, please report them and revert to the previous version.
+- This port the old source code to a new fresh extension using the
+  latest dependencies and dev tools, which will later allow for some
+  updates requested by users.
+- No functional changes (hopefully), but now depends on VS Code
+  1.96.0.
+- Refreshed to now depend on newer versions of dependencies, using
+  latest dev dependencies.
+- If problems are found with this version, please report them and
+  revert to the previous version.
 
 2.1.0
 -----
 
 - Added the [reflowMarkdown.wrapLongLinks](README.md#Extension-Settings)
   setting.
-- Bumped the minor version number per semver to indicate features were added in
-  a backwards-compatible way.
+- Bumped the minor version number per semver to indicate features were
+  added in a backwards-compatible way.
 
 2.0.0
 -----
